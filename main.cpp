@@ -47,7 +47,23 @@ int main()
 
 void game::reading_subject() // ذخیره سازی موضوعات سایت در وکتور
 {
+    int index1 = 0, index2 = 0, index3 = 0;
+    string line, s;
+
+    system("curl -o subjects.json https://opentdb.com/api_category.php");
     
+    fstream subjects("subjects.json");
+    getline(subjects, line);
+    while (true)
+    {
+        index1 = line.find("name", index1);
+        if (index1 == -1)
+            break;
+        index2 = line.find("\"", index1 + 5);
+        index3 = line.find("\"", index2 + 1);
+        subject.push_back(line.substr(index2 + 1, index3 - index2 - 1));
+        index1 = index3;
+    }
 }
 
 void game::one_player()
