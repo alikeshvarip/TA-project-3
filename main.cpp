@@ -249,7 +249,60 @@ int game::show_questionsTwo()
 
 bool game::reading_questions()
 {
-    
+    string cmd = "curl -o questions.json \"https://opentdb.com/api.php?amount=5";
+    if (!is_randomCategory)
+        cmd += "&category=" + to_string(category);
+    if (!is_randomDifficulty)
+        cmd += "&difficulty=" + difficulty;
+    cmd += "&type=multiple\"";
+    system(cmd.c_str());
+
+    string line, question, correctAnswer, incorrectAnswers[3];
+    int index1 = 0, index2 = 0, index3 = 0, index4 = 0, index5 = 0, j = 0;
+    fstream Qestions("questions.json");
+    getline(Qestions, line);
+
+    if (line.substr(line.find(":", 0) + 1, 1) != "0")
+        return false;
+
+    while (true)
+    {
+        index1 = line.find("question", index3);
+        if (index1 == -1)
+            break;
+        index2 = line.find("correct_answer", index1);
+        index3 = line.find("incorrect_answers", index2);
+        index4 = index3 + 19;
+        question = line.substr(index1 + 11, (index2 - 4) - (index1 + 10));
+        correctAnswer = line.substr(index2 + 17, (index3 - 4) - (index2 + 16));
+        for (int i = 0; i < 3; i++)
+        {
+            index4 = line.find("\"", index4 + 1);
+            index5 = line.find("\"", index4 + 1);
+            incorrectAnswers[i] = line.substr(index4 + 1, (index5 - index4 - 1));
+            index4 = index5; 
+        }
+        
+        // چینش تصادفی گزینه در آرایه
+        int in1 = 0, in2 = 0, in3 = 0, in4 = 0;
+        in1 = random1(1, 4);
+        in2 = random1(1, 4);
+        while (in1 == in2)
+            in2 = random1(1, 4);
+        in3 = random1(1, 4);
+        while (in2 == in3 || in1 == in3)
+            in3 = random1(1, 4);
+        in4 = random1(1, 4);
+        while (in3 == in4  || in2 == in4  || in1 == in4)
+            in4 = random1(1, 4);
+        arr[j][0] == question;
+        arr[j][in1] == incorrectAnswers[0];
+        arr[j][in2] == incorrectAnswers[1];
+        arr[j][in3] == incorrectAnswers[2];
+        arr[j][in4] == correctAnswer;
+        arr[j++][5] == correctAnswer;
+    }
+    return true;
 }
 
 int random1(int x, int y) // تابعی برای دریافت اعداد رندوم در بازه دلخواه
