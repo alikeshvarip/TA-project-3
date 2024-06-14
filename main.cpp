@@ -1,158 +1,242 @@
 #include <iostream>
+#include <string>
 #include <vector>
-#include <chrono>//به خاطر تابع رندوم و ایجاد وقفه
-#include <random>//به خاطر تابع رندوم
-#include <cstdlib>//به خاطر تابع سیستم
-#include <thread>//به خاطر ایجاد وقفه 
-//#include <future>
+#include <fstream>
+#include <chrono>  //به خاطر تابع رندوم و ایجاد وقفه
+#include <random>  //به خاطر تابع رندوم
+#include <cstdlib> //به خاطر تابع سیستم
+#include <thread>  //به خاطر ایجاد وقفه
+// #include <future>
 using namespace std;
+
 int random1(int x, int y);
+
 class game
 {
-        string arr[5][6];
-        vector <string> subject;
-    public:
-        void reading_subject();//خواندن موضوعات از سایت و ذخیره سازی آنها در فضای محلی
-        void one_player();//دستورات لازم برای اجرای بازی به صورت تک نفره
-        void two_players();//دستورات لازم برای اجرای بازی به صورت دو نفره
-        void reading_questions(int l, int s,int n);//خواندن سوالات با سختی ال  و موضوع اس
-}a;//تعریف یک متغیر برای دسترسی به اعضای کلاس
+    string arr[5][6];
+    vector<string> subject;
+    int category;      // موضوع سوال. باید عدد باشد و عددی به سایت ارسال شود
+    string difficulty; // سختی سوال
+    bool is_randomCategory, is_randomDifficulty; // متغیرهایی که سیو میکنند آیا سطح و موضوع سوال باید رندوم انتخاب شود یا خیر
+
+public:
+    void reading_subject(); // خواندن موضوعات از سایت و ذخیره سازی آنها در فضای محلی
+    void one_player();      // دستورات لازم برای اجرای بازی به صورت تک نفره
+    void two_players();     // دستورات لازم برای اجرای بازی به صورت دو نفره
+    int show_questionsOne(int j);
+    int show_questionsTwo();
+    bool reading_questions(); // خواندن سوالات
+} a;                          // تعریف یک متغیر برای دسترسی به اعضای کلاس
+
 int main()
 {
     a.reading_subject();
-    int n;//تعداد بازیکنان
+    int n; // تعداد بازیکنان
     while (true)
     {
-        cin>>n;
-        if (n==1)
+        cin >> n;
+        if (n == 1)
             a.one_player();
-        else if (n==2)
+        else if (n == 2)
             a.two_players();
-        else break;
+        else
+            break;
     }
     return 0;
 }
-void game:: reading_subject()
+
+void game::reading_subject() // ذخیره سازی موضوعات سایت در وکتور
 {
-    //ذخیره سازی موضوعات سایت در متغیر وکتور به نامsubject
+    
 }
-void game:: one_player()
+
+void game::one_player()
 {
-    int l,s,f=0;// سطح سختی سوالات و موضوع سوالات
-    cin>>l;
-    while (f<3)
+    is_randomDifficulty = false;
+    is_randomCategory = true; // زمانی که بازی به صورت تک نفره در حال برگزاری است ، موضوع باید به صورت رندوم انتخاب شود
+    int falseAnswer = 0, trueAnswer = 0, playerAnswer, j = 0;
+    //cin >> difficulty; // دریافت سختی سوال
+    while (falseAnswer < 3)
     {
-        s=random1(0,subject.size()-1);//زمانی که بازی به صورت تک نفره در حال برگزاری است ، موضوع باید به صورت رندوم انتخاب شود
-        cin>>l;
-        reading_questions(l,s,1);
+        if (j%5 == 0)
+        {
+            if (!reading_questions())
+            {
+                cout << "error! can not reading qoestions from trivia";
+                exit(0);
+            }  
+            j = 0;
+        }
+
+        if (show_questionsOne(j++) == 0)
+            falseAnswer++;
+        else
+            trueAnswer++;
     }
+    cout << trueAnswer;
 }
-void game:: two_players()
+
+void game::two_players()
 {
-    int l,su,sc1=0,sc2=0,t1=0,t2=0,x;// سطح سختی سوالات و موضوع سوالات
-    for (int i=0;i<4;i++)
+    int score1 = 0, score2 = 0, trueAnswer1 = 0, trueAnswer2 = 0, playerAnswer;
+    is_randomCategory = false;
+    for (int i = 0; i < 4; i++)
     {
-        t1=0,t2=0;
-        if (i%2==0)
+        trueAnswer1 = 0, trueAnswer2 = 0;
+        if (i % 2 == 0)
         {
-            cout<<"It is the turn of the first player:\n"<<"Determine the difficulty of this round:   (hard: 3, medium: 2, easy: 1)\n";
-            cin>>l;
-            cout<<"Determine the topic of this round:\n";
-            for (int j=0;j<subject.size();j++)
-                cout<<subject[j]<<" : "<<j<<"\n";
-            cin>>su;
-            reading_questions(l,su,5);
+            cout << "It is the turn of the first player:\n"
+                 << "Determine the difficulty of this round: (hard: 3, medium: 2, easy: 1)\n";
+            // cin >> difficulty;
+            cout << "Determine the topic of this round:\n";
+            for (int j = 0; j < subject.size(); j++)
+                cout << subject[j] << " : " << j << "\n";
+            // cin >> category;   
         }
-        system ("cls");//پاک کردن cmd
-        //نمایش سوالات و دریافت پاسخ ها و ثبت تعداد پاسخ های صحیح بازیکن اول
-        for (int j=0;j<5;j++)
+        else
         {
-            cout<<arr[j][0]<<"\n1)"<<arr[j][1]<<"\n2)"<<arr[j][2]<<"\n3)"<<arr[j][3]<<"\n4)"<<arr[j][4]<<"\n";
-            cin>>x;
-            if (arr[j][5]==arr[j][x])
-            {
-                t1++;
-                cout<<"Your answer was correct.\n";
-            }
-            else cout<<"Your answer was wrong.    The option of "<<arr[j][5]<<" was correct.\n";
+            cout << "It is the turn of the second player:\n"
+                 << "Determine the difficulty of this round:   (hard: 3, medium: 2, easy: 1)\n";
+            // cin >> difficulty;
+            cout << "Determine the topic of this round:\n";
+            for (int j = 0; j < subject.size(); j++)
+                cout << subject[j] << " : " << j << "\n";
+            // cin >> category;
         }
-        this_thread::sleep_for(std::chrono::seconds(3));//ایجاد وقفه سه ثانیه ای
-        system ("cls");
-        //نمایش سوالات و دریافت پاسخ ها و ثبت تعداد پاسخ های صحیح بازیکن دوم
-        for (int j=0;j<5;j++)
+        if (!reading_questions())
         {
-            cout<<arr[j][0]<<"\n1)"<<arr[j][1]<<"\n2)"<<arr[j][2]<<"\n3)"<<arr[j][3]<<"\n4)"<<arr[j][4]<<"\n";
-            cin>>x;
-            if (arr[j][5]==arr[j][x])
-            {
-                t2++;
-                cout<<"Your answer was correct.\n";
-            }
-            else cout<<"Your answer was wrong.    The option of "<<arr[j][5]<<" was correct.\n";
-        }
-        this_thread::sleep_for(std::chrono::seconds(3));//ایجاد وقفه سه ثانیه ای
-        system ("cls");
-        if (t1>t2)
+            cout << "error! can not reading qoestions from trivia";
+            exit(0);
+        } 
+
+        system("cls"); // پاک کردن cmd
+
+        // نمایش سوالات و دریافت پاسخ ها و ثبت تعداد پاسخ های صحیح بازیکن اول
+        trueAnswer1 = show_questionsTwo();
+
+        this_thread::sleep_for(std::chrono::seconds(3)); // ایجاد وقفه سه ثانیه ای
+        system("cls");
+
+        // نمایش سوالات و دریافت پاسخ ها و ثبت تعداد پاسخ های صحیح بازیکن دوم
+        trueAnswer2 = show_questionsTwo();
+
+        this_thread::sleep_for(std::chrono::seconds(3)); // ایجاد وقفه سه ثانیه ای
+        system("cls");
+
+        if (trueAnswer1 > trueAnswer2)
         {
-            sc1++;
-            cout<<"The score of this round went to the first player\n";
+            score1++;
+            cout << "The score of this round went to the first player\n";
         }
-        else if (t1<t2)
+        else if (trueAnswer1 < trueAnswer2)
         {
-            sc2++;
-            cout<<"The score of this round went to the second player\n";
+            score2++;
+            cout << "The score of this round went to the second player\n";
         }
-        else 
+        else
         {
-            sc1++;
-            sc2++;
-            cout<<"The points of this round went to both players.\n";
+            score1++;
+            score2++;
+            cout << "The points of this round went to both players.\n";
         }
-        if (i%2==0)
+        /* if (i % 2 == 0)
         {
-            cout<<"It is the turn of the second player:\n"<<"Determine the difficulty of this round:   (hard: 3, medium: 2, easy: 1)\n";
-            cin>>l;
-            cout<<"Determine the topic of this round:\n";
-            for (int j=0;j<subject.size();j++)
-                cout<<subject[j]<<" : "<<j<<"\n";
-            cin>>su;
-            reading_questions(l,su,5);
-        }
+            cout << "It is the turn of the second player:\n"
+                 << "Determine the difficulty of this round:   (hard: 3, medium: 2, easy: 1)\n";
+            // cin >> difficulty;
+            cout << "Determine the topic of this round:\n";
+            for (int j = 0; j < subject.size(); j++)
+                cout << subject[j] << " : " << j << "\n";
+            // cin >> category;
+            reading_questions();
+        }*/ 
     }
-    if (sc1==sc2)
+    if (score1 == score2)
     {
-        while (sc1==sc2)
+        while (score1 == score2)
         {
-            t1=0,t2=0;
-            su=random1(0,subject.size()-1);
-            l=random1(1,3);
-            reading_questions(l,su,5);
+            int j = 0;
+            trueAnswer1 = 0, trueAnswer2 = 0;
+            is_randomCategory = true;
+            is_randomDifficulty = true;
+            
+            if (j%5 == 0)
+            {
+                if (!reading_questions())
+                {
+                    cout << "error! can not reading qoestions from trivia";
+                    exit(0);
+                } 
+                j = 0;
+            }
+            
             system("cls");
-            //نمایش سوالات و دریافت پاسخ ها و ثبت تعداد پاسخ های صحیح بازیکن اول
+
+            trueAnswer1 = show_questionsOne(j);
+
             system("cls");
-            //نمایش سوالات و دریافت پاسخ ها و ثبت تعداد پاسخ های صحیح بازیکن دوم
-            if (t1>t2)
-                sc1++;
-            else if (t1<t2)
-                sc2++;
-            else 
+            
+            trueAnswer2 = show_questionsOne(j++);
+            
+            if (trueAnswer1 > trueAnswer2)
+                score1++;
+            else if (trueAnswer1 < trueAnswer2)
+                score2++;
+            else
             {
-                sc1++;
-                sc2++;
+                score1++;
+                score2++;
             }
         }
     }
+    else
+    {
+        if (score1 > score2)
+            cout << "the first player is barandeh";
+        else
+            cout << "the second player is barandeh";
+    }
 }
-void game:: reading_questions(int l, int s,int n)
+
+int game::show_questionsOne(int j)
 {
-    if (l==1)
-        ;
-    else if (l==2)
-        ;
-    else if (l==3)
-        ;
+    int playerAnswer, trueAnswer = 0;
+    cout << arr[j][0] << "\n1)" << arr[j][1] << "\n2)" << arr[j][2] << "\n3)" << arr[j][3] << "\n4)" << arr[j][4] << "\n";
+    cin >> playerAnswer;
+    if (arr[j][5] == arr[j][playerAnswer])
+    {
+        trueAnswer++;
+        cout << "Your answer was correct.\n";
+    }
+    else
+        cout << "Your answer was wrong.    The option of " << arr[j][5] << " was correct.\n";
+    return trueAnswer;
 }
-int random1(int x, int y)//تابعی برای دریافت اعداد رندوم در بازه دلخواه
+
+int game::show_questionsTwo()
+{
+    int playerAnswer, trueAnswer = 0;
+    for (int j = 0; j < 5; j++)
+    {
+        cout << arr[j][0] << "\n1)" << arr[j][1] << "\n2)" << arr[j][2] << "\n3)" << arr[j][3] << "\n4)" << arr[j][4] << "\n";
+        cin >> playerAnswer;
+        if (arr[j][5] == arr[j][playerAnswer])
+        {
+            trueAnswer++;
+            cout << "Your answer was correct.\n";
+        }
+        else
+            cout << "Your answer was wrong.    The option of " << arr[j][5] << " was correct.\n";
+    }
+    return trueAnswer;
+}
+
+bool game::reading_questions()
+{
+    
+}
+
+int random1(int x, int y) // تابعی برای دریافت اعداد رندوم در بازه دلخواه
 {
     unsigned seed = chrono::high_resolution_clock::now().time_since_epoch().count();
     mt19937 generator(seed);
