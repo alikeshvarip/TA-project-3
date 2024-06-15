@@ -15,8 +15,8 @@ class game
 {
     string arr[5][6];
     vector<string> subject;
-    int category;      // موضوع سوال. باید عدد باشد و عددی به سایت ارسال شود
-    string difficulty; // سختی سوال
+    int category;                                // موضوع سوال. باید عدد باشد و عددی به سایت ارسال شود
+    string difficulty;                           // سختی سوال
     bool is_randomCategory, is_randomDifficulty; // متغیرهایی که سیو میکنند آیا سطح و موضوع سوال باید رندوم انتخاب شود یا خیر
 
 public:
@@ -51,7 +51,7 @@ void game::reading_subject() // ذخیره سازی موضوعات سایت در
     string line, s;
 
     system("curl -o subjects.json https://opentdb.com/api_category.php");
-    
+
     fstream subjects("subjects.json");
     getline(subjects, line);
     while (true)
@@ -71,16 +71,16 @@ void game::one_player()
     is_randomDifficulty = false;
     is_randomCategory = true; // زمانی که بازی به صورت تک نفره در حال برگزاری است ، موضوع باید به صورت رندوم انتخاب شود
     int falseAnswer = 0, trueAnswer = 0, playerAnswer, j = 0;
-    //cin >> difficulty; // دریافت سختی سوال
+    // cin >> difficulty; // دریافت سختی سوال
     while (falseAnswer < 3)
     {
-        if (j%5 == 0)
+        if (j % 5 == 0)
         {
             if (!reading_questions())
             {
                 cout << "error! can not reading qoestions from trivia";
                 exit(0);
-            }  
+            }
             j = 0;
         }
 
@@ -89,7 +89,7 @@ void game::one_player()
         else
             trueAnswer++;
     }
-    cout << trueAnswer;
+    cout << "you asked 3 questions misstake. your score is: " << trueAnswer;
 }
 
 void game::two_players()
@@ -107,7 +107,7 @@ void game::two_players()
             cout << "Determine the topic of this round:\n";
             for (int j = 0; j < subject.size(); j++)
                 cout << subject[j] << " : " << j << "\n";
-            // cin >> category;   
+            // cin >> category;
         }
         else
         {
@@ -123,21 +123,21 @@ void game::two_players()
         {
             cout << "error! can not reading qoestions from trivia";
             exit(0);
-        } 
+        }
 
-        system("cls"); // پاک کردن cmd
+        // system("cls"); // پاک کردن cmd
 
         // نمایش سوالات و دریافت پاسخ ها و ثبت تعداد پاسخ های صحیح بازیکن اول
         trueAnswer1 = show_questionsTwo();
 
-        this_thread::sleep_for(std::chrono::seconds(3)); // ایجاد وقفه سه ثانیه ای
-        system("cls");
+        // this_thread::sleep_for(std::chrono::seconds(3)); // ایجاد وقفه سه ثانیه ای
+        // system("cls");
 
         // نمایش سوالات و دریافت پاسخ ها و ثبت تعداد پاسخ های صحیح بازیکن دوم
         trueAnswer2 = show_questionsTwo();
 
-        this_thread::sleep_for(std::chrono::seconds(3)); // ایجاد وقفه سه ثانیه ای
-        system("cls");
+        // this_thread::sleep_for(std::chrono::seconds(3)); // ایجاد وقفه سه ثانیه ای
+        // system("cls");
 
         if (trueAnswer1 > trueAnswer2)
         {
@@ -155,17 +155,6 @@ void game::two_players()
             score2++;
             cout << "The points of this round went to both players.\n";
         }
-        /* if (i % 2 == 0)
-        {
-            cout << "It is the turn of the second player:\n"
-                 << "Determine the difficulty of this round:   (hard: 3, medium: 2, easy: 1)\n";
-            // cin >> difficulty;
-            cout << "Determine the topic of this round:\n";
-            for (int j = 0; j < subject.size(); j++)
-                cout << subject[j] << " : " << j << "\n";
-            // cin >> category;
-            reading_questions();
-        }*/ 
     }
     if (score1 == score2)
     {
@@ -175,25 +164,25 @@ void game::two_players()
             trueAnswer1 = 0, trueAnswer2 = 0;
             is_randomCategory = true;
             is_randomDifficulty = true;
-            
-            if (j%5 == 0)
+
+            if (j % 5 == 0)
             {
                 if (!reading_questions())
                 {
                     cout << "error! can not reading qoestions from trivia";
                     exit(0);
-                } 
+                }
                 j = 0;
             }
-            
-            system("cls");
+
+            // system("cls");
 
             trueAnswer1 = show_questionsOne(j);
 
-            system("cls");
-            
+            // system("cls");
+
             trueAnswer2 = show_questionsOne(j++);
-            
+
             if (trueAnswer1 > trueAnswer2)
                 score1++;
             else if (trueAnswer1 < trueAnswer2)
@@ -258,14 +247,14 @@ bool game::reading_questions()
     system(cmd.c_str());
 
     string line, question, correctAnswer, incorrectAnswers[3];
-    int index1 = 0, index2 = 0, index3 = 0, index4 = 0, index5 = 0, j = 0;
+    int index1 = 0, index2 = 0, index3 = 0, index4 = 0, index5 = 0;
     fstream Qestions("questions.json");
     getline(Qestions, line);
 
     if (line.substr(line.find(":", 0) + 1, 1) != "0")
         return false;
 
-    while (true)
+    for (int j = 0; true; j++)
     {
         index1 = line.find("question", index3);
         if (index1 == -1)
@@ -280,9 +269,9 @@ bool game::reading_questions()
             index4 = line.find("\"", index4 + 1);
             index5 = line.find("\"", index4 + 1);
             incorrectAnswers[i] = line.substr(index4 + 1, (index5 - index4 - 1));
-            index4 = index5; 
+            index4 = index5;
         }
-        
+
         // چینش تصادفی گزینه در آرایه
         int in1 = 0, in2 = 0, in3 = 0, in4 = 0;
         in1 = random1(1, 4);
@@ -293,14 +282,14 @@ bool game::reading_questions()
         while (in2 == in3 || in1 == in3)
             in3 = random1(1, 4);
         in4 = random1(1, 4);
-        while (in3 == in4  || in2 == in4  || in1 == in4)
+        while (in3 == in4 || in2 == in4 || in1 == in4)
             in4 = random1(1, 4);
-        arr[j][0] == question;
-        arr[j][in1] == incorrectAnswers[0];
-        arr[j][in2] == incorrectAnswers[1];
-        arr[j][in3] == incorrectAnswers[2];
-        arr[j][in4] == correctAnswer;
-        arr[j++][5] == correctAnswer;
+        arr[j][0] = question;
+        arr[j][in1] = incorrectAnswers[0];
+        arr[j][in2] = incorrectAnswers[1];
+        arr[j][in3] = incorrectAnswers[2];
+        arr[j][in4] = correctAnswer;
+        arr[j][5] = correctAnswer;
     }
     return true;
 }
