@@ -74,8 +74,12 @@ void one_player::on_pushButton_3_clicked()
             write1();
         else {
             close();
+            QString tedad=QString::fromStdString(to_string(a1.pp));
+                    QString sahih=QString::fromStdString(to_string(a1.trueAnswer));
         QMessageBox *msg = new QMessageBox;//میتونی اینجا کدی بنویسی که نتیجه رو مثل تعداد سوالات درست و تعداد سوالات غلط رو بهش نشون بده
         msg->setText("شما باختید!");
+        msg->setInformativeText(" شما از\n "+tedad+"سوال به  \n"+sahih+"سوال پاسخ صحیح\nدادید!");
+        msg->setIcon(QMessageBox::Warning);
         msg->show();
         }
         //a1.pp تعداد سوالات پرسیده شده هست
@@ -95,4 +99,5 @@ void one_player::write1 ()
         //....
         //a2.arr[a1.pp][4] در قسمت گزینه ۴
 }
+
 
