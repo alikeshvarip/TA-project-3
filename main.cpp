@@ -138,7 +138,10 @@ bool game::button_5(string b)
 	else falseAnswer++;
 	pp++;
 	if (pp % 5 == 0)
+	{
+		pp = 0;
 		reading_questions();
+	}
 	if (falseAnswer < 3)
 		return true;
 	else return false;
