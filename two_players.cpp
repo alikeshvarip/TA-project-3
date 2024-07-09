@@ -177,9 +177,8 @@ void two_players::on_pushButton_4_clicked()
     {
         //بازی خاتمه پیدا کرده و شماره بازیکن برنده در a2.winner ثبت شده است
         if (a2.winner==1){
-           m->setText("بازیکن "+np1+" برنده شد!");
-        m->exec();} else {m->setText("بازیکن "+np2+" برنده شد!");}
-        close();
+           m->setText("بازیکن "+np1+" برنده شد!");m->exec();close();
+        } else {m->setText("بازیکن "+np2+" برنده شد!"); m->exec();close();}
     }
     else if (a2.end_of_the_round)
     {
