@@ -58,7 +58,6 @@ void one_player::on_pushButton_2_clicked()
 
 void one_player::on_pushButton_3_clicked()
 {
-        write1();
         int i;
         if(ui->radioButton_1->isChecked())
             i=1;
@@ -70,12 +69,18 @@ void one_player::on_pushButton_3_clicked()
             i=4;
         else i=0;
         string x=a1.arr[a1.pp][i];//i همون شماره گزینه انتخاب شده هست
-        if(a1.button_5(1,x))
+        bool E=a1.button_5(1,x);
+        QString tedad=QString::fromStdString(to_string(a1.falseAnswer+a1.trueAnswer));
+        QString qalat=QString::fromStdString(to_string(a1.falseAnswer));
+        QString sahih=QString::fromStdString(to_string(a1.trueAnswer));
+        if(E) {
             write1();
-        else {
+            ui->label_5->setText(sahih);
+            ui->label_6->setText(qalat);
+        }
+        if(!(a1.button_5(1,x))) {
             close();
-            QString tedad=QString::fromStdString(to_string(a1.pp));
-                    QString sahih=QString::fromStdString(to_string(a1.trueAnswer));
+
         QMessageBox *msg = new QMessageBox;//میتونی اینجا کدی بنویسی که نتیجه رو مثل تعداد سوالات درست و تعداد سوالات غلط رو بهش نشون بده
         msg->setText("شما باختید!");
         msg->setInformativeText(" شما از\n "+tedad+"سوال به  \n"+sahih+"سوال پاسخ صحیح\nدادید!");
@@ -99,5 +104,3 @@ void one_player::write1 ()
         //....
         //a2.arr[a1.pp][4] در قسمت گزینه ۴
 }
-
-
